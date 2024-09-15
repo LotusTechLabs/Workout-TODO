@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:workoutapp/controller/work_out_controller.dart';
 import 'package:workoutapp/models/exercise_model.dart';
 import 'package:workoutapp/models/workout_model.dart';
-import 'package:workoutapp/view/work_out_listing/work_out_tile.dart';
+import 'package:workoutapp/view/work_out/work_out_listing/work_out_tile.dart';
 
 class WorkOutListingScreen extends StatefulWidget {
   const WorkOutListingScreen({super.key});

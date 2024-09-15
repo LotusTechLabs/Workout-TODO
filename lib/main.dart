@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:workoutapp/view/work_out_listing.dart';
+import 'package:workoutapp/view/work_out/work_out_listing/work_out_listing.dart';
 
 Future<void> main() async {
   await GetStorage.init("work_out");

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:workoutapp/createworkoutscreen.dart';
+import 'package:workoutapp/view/work_out/create_workout.dart';
 import 'package:workoutapp/models/exercise_model.dart';
 import 'package:workoutapp/models/workout_model.dart';
 
