@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:workoutapp/storage/storage.dart';
 import 'package:workoutapp/workoutlistingscreen.dart';
 
-void main() {
+Future<void> main() async {
+  await GetStorage.init();
+  await Storage.instance.cleanData();
   runApp(const MyApp());
 }
 

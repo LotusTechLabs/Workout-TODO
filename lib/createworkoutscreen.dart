@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:workoutapp/models/exercise_model.dart';
+import 'package:workoutapp/models/workout_model.dart';
+import 'package:workoutapp/utils/enums/exercise_enum.dart';
 import 'DataBase/Model.dart';
 import 'DataBase/SqlHelper.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
 class CreateWorkOutScreen extends StatefulWidget {
-  final SetModel? existingSet;
+  final DateTime workOutDay;
+  final ExerciseModel? exercise;
 
-  const CreateWorkOutScreen({super.key, required this.existingSet});
+  const CreateWorkOutScreen({
+    super.key,
+    required this.workOutDay,
+    this.exercise,
+  });
 
   @override
   State<CreateWorkOutScreen> createState() => _CreateWorkOutScreenState();
@@ -14,17 +22,17 @@ class CreateWorkOutScreen extends StatefulWidget {
 
 class _CreateWorkOutScreenState extends State<CreateWorkOutScreen> {
   final _dbHelper = DatabaseHelper();
-  final exercises = ['Barbell row', 'Bench press', 'Shoulder press', 'Deadlift', 'Squat'];
+
   final _weightController = TextEditingController();
   final _repsController = TextEditingController();
-  String _selectedExercise = 'Bench press';
+  ExerciseEnum? _selectedExercise;
 
   @override
   void initState() {
     super.initState();
-    if (widget.existingSet != null) {
-      final set = widget.existingSet!;
-      _selectedExercise = set.exercise;
+    if (widget.exercise != null) {
+      final ExerciseModel set = widget.exercise!;
+      _selectedExercise = set.name;
       _weightController.text = set.weight.toString();
       _repsController.text = set.repetitions.toString();
     }
@@ -43,19 +51,15 @@ class _CreateWorkOutScreenState extends State<CreateWorkOutScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue,
         leading: InkWell(
           onTap: () {
             Navigator.pop(context);
           },
-          child: const Icon(Icons.arrow_back, color: Colors.white, size: 25),
+          child: const Icon(Icons.arrow_back, size: 25),
         ),
         title: const Text(
           'Record Workout',
-          style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.w700),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
         ),
         centerTitle: true,
         automaticallyImplyLeading: false,
@@ -88,24 +92,25 @@ class _CreateWorkOutScreenState extends State<CreateWorkOutScreen> {
                     ),
                   ],
                 ),
-                items: exercises
-                    .map((String exercise) => DropdownMenuItem<String>(
-                  value: exercise,
-                  child: Text(
-                    exercise,
-                    style: TextStyle(
-                      color: Colors.black.withOpacity(0.8),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ))
+                items: ExerciseEnum.values
+                    .map((ExerciseEnum exercise) => DropdownMenuItem<String>(
+                          value: exercise.name,
+                          child: Text(
+                            exercise.name,
+                            style: TextStyle(
+                              color: Colors.black.withOpacity(0.8),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ))
                     .toList(),
-                value: _selectedExercise.isEmpty ? null : _selectedExercise,
-                onChanged: (value) {
+                value: _selectedExercise?.name,
+                onChanged: (String? value) {
+                  if (value == null) return;
                   setState(() {
-                    _selectedExercise = value!;
+                    _selectedExercise = ExerciseEnum.fromString(value);
                   });
                 },
                 buttonStyleData: ButtonStyleData(
@@ -191,37 +196,63 @@ class _CreateWorkOutScreenState extends State<CreateWorkOutScreen> {
               borderRadius: BorderRadius.circular(16),
               onTap: () {
                 // Validate inputs
-                if (_selectedExercise == null || _selectedExercise.isEmpty) {
+                if (_selectedExercise == null) {
                   _showError('Please select an exercise');
                   return;
                 }
 
-                if (_weightController.text.isEmpty || double.tryParse(_weightController.text) == null) {
+                if (_weightController.text.isEmpty ||
+                    double.tryParse(_weightController.text) == null) {
                   _showError('Please enter a valid weight');
                   return;
                 }
 
-                if (_repsController.text.isEmpty || int.tryParse(_repsController.text) == null) {
+                if (_repsController.text.isEmpty ||
+                    int.tryParse(_repsController.text) == null) {
                   _showError('Please enter a valid number of repetitions');
                   return;
                 }
 
-                final newSet = SetModel(
-                  id: widget.existingSet?.id, // Keep the id if editing
-                  exercise: _selectedExercise,
-                  weight: double.parse(_weightController.text),
-                  repetitions: int.parse(_repsController.text),
-                );
-
-                if (widget.existingSet != null) {
-                  _dbHelper.updateWorkout(newSet).then((_) {
-                    Navigator.pop(context, true);
-                  });
+                late ExerciseModel newSet;
+                if (widget.exercise == null) {
+                  newSet = ExerciseModel(
+                    name: _selectedExercise!,
+                    weight: int.parse(_weightController.text),
+                    repetitions: int.parse(_repsController.text),
+                    createdAt: DateTime.now(),
+                    updatedAt: DateTime.now(),
+                  );
                 } else {
-                  _dbHelper.insertSet(newSet.exercise, newSet.weight, newSet.repetitions).then((_) {
-                    Navigator.pop(context, true);
-                  });
+                  newSet = widget.exercise!.copyWith(
+                    name: _selectedExercise,
+                    weight: int.parse(_weightController.text),
+                    repetitions: int.parse(_repsController.text),
+                  );
                 }
+
+                final newWorkOut =
+                    WorkoutModel(exercise: [newSet], day: widget.workOutDay);
+                WorkoutModel.createOrUpdateWorkout(newWorkOut);
+
+                // final newSet = SetModel(
+                //   id: widget.existingSet?.id, // Keep the id if editing
+                //   exercise: _selectedExercise,
+                //   weight: double.parse(_weightController.text),
+                //   repetitions: int.parse(_repsController.text),
+                // );
+
+                // if (widget.existingSet != null) {
+                //   _dbHelper.updateWorkout(newSet).then((_) {
+                //     Navigator.pop(context, true);
+                //   });
+                // } else {
+                //   _dbHelper
+                //       .insertSet(
+                //           newSet.exercise, newSet.weight, newSet.repetitions)
+                //       .then((_) {
+                //     Navigator.pop(context, true);
+                //   });
+                // }
               },
               child: Container(
                 height: 40,
