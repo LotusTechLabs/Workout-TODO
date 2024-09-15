@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:workoutapp/createworkoutscreen.dart';
+import 'package:workoutapp/controller/work_out_controller.dart';
 import 'package:workoutapp/models/exercise_model.dart';
 import 'package:workoutapp/models/workout_model.dart';
-import 'package:workoutapp/utils/date_time/date_time_formate.dart';
 import 'package:workoutapp/view/work_out_listing/work_out_tile.dart';
 
 class WorkOutListingScreen extends StatefulWidget {
@@ -13,39 +12,10 @@ class WorkOutListingScreen extends StatefulWidget {
 }
 
 class _WorkOutListingScreenState extends State<WorkOutListingScreen> {
-  List<Map<String, dynamic>> workouts = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _loadWorkouts();
-  }
-
-  _loadWorkouts() async {
-    setState(() {});
-  }
-
-  Future<void> _navigateToCreateWorkout(
-      DateTime workOutDay, ExerciseModel? exerciseModel) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CreateWorkOutScreen(
-          workOutDay: workOutDay,
-          exercise: exerciseModel,
-        ),
-      ),
-    );
-    if (result == true) {
-      _loadWorkouts();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // backgroundColor: Colors.blue,
         title: const Text(
           'Workout',
           style: TextStyle(
@@ -61,21 +31,34 @@ class _WorkOutListingScreenState extends State<WorkOutListingScreen> {
           final DateTime? selectedDate = await _selectDate(this.context);
           if (selectedDate == null) return;
 
-          await _navigateToCreateWorkout(selectedDate, null);
+          await WorkOutController.instance
+              .createOrEditData(context, selectedDate, null);
           setState(() {});
         },
-        // backgroundColor: Colors.deepPurple,
         child: const Icon(Icons.add),
       ),
       body: WorkoutModel.readData().isNotEmpty
           ? ListView.separated(
               itemCount: WorkoutModel.readData().length,
               shrinkWrap: true,
-              // physics: const NeverScrollableScrollPhysics(),
               itemBuilder: (context, index) {
                 final WorkoutModel workout = WorkoutModel.readData()[index];
                 return WorkOutTile(
                   workout: workout,
+                  onDeleteExercise: (ExerciseModel exercise) async {
+                    await WorkOutController.instance.deleteExerciseData(
+                        workout.copyWith(exercise: [exercise]));
+                    setState(() {});
+                  },
+                  onDeleteWorkout: () async {
+                    await WorkOutController.instance.deleteWorkoutData(workout);
+                    setState(() {});
+                  },
+                  onEdit: (ExerciseModel exercise) async {
+                    await WorkOutController.instance
+                        .createOrEditData(context, workout.day, exercise);
+                    setState(() {});
+                  },
                 );
               },
               separatorBuilder: (context, index) {

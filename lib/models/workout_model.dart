@@ -1,4 +1,3 @@
-import 'package:intl/intl.dart';
 import 'package:workoutapp/models/exercise_model.dart';
 import 'package:workoutapp/storage/storage.dart';
 import 'package:workoutapp/utils/date_time/date_time_formate.dart';

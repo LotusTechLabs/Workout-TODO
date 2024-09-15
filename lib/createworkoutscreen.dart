@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:workoutapp/controller/work_out_controller.dart';
 import 'package:workoutapp/models/exercise_model.dart';
 import 'package:workoutapp/models/workout_model.dart';
 import 'package:workoutapp/utils/enums/exercise_enum.dart';
@@ -228,7 +229,8 @@ class _CreateWorkOutScreenState extends State<CreateWorkOutScreen> {
 
                 final newWorkOut =
                     WorkoutModel(exercise: [newSet], day: widget.workOutDay);
-                await WorkoutModel.createOrUpdateWorkout(newWorkOut);
+
+                await WorkOutController.instance.saveData(newWorkOut);
 
                 Navigator.of(context).pop();
 
