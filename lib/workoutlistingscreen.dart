@@ -3,7 +3,6 @@ import 'package:workoutapp/models/exercise_model.dart';
 import 'package:workoutapp/models/workout_model.dart';
 import 'package:workoutapp/utils/date_time/date_time_formate.dart';
 import 'CreateWorkOutScreen.dart';
-import 'DataBase/Model.dart';
 import 'DataBase/SqlHelper.dart';
 
 class WorkOutListingScreen extends StatefulWidget {

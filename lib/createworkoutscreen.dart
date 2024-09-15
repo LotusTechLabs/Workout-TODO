@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:workoutapp/models/exercise_model.dart';
 import 'package:workoutapp/models/workout_model.dart';
 import 'package:workoutapp/utils/enums/exercise_enum.dart';
-import 'DataBase/Model.dart';
-import 'DataBase/SqlHelper.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
 class CreateWorkOutScreen extends StatefulWidget {
@@ -21,8 +19,6 @@ class CreateWorkOutScreen extends StatefulWidget {
 }
 
 class _CreateWorkOutScreenState extends State<CreateWorkOutScreen> {
-  final _dbHelper = DatabaseHelper();
-
   final _weightController = TextEditingController();
   final _repsController = TextEditingController();
   ExerciseEnum? _selectedExercise;
