@@ -12,6 +12,16 @@ class WorkoutModel {
     required this.exercise,
   });
 
+  WorkoutModel copyWith({
+    List<ExerciseModel>? exercise,
+    DateTime? day,
+  }) {
+    return WorkoutModel(
+      day: day ?? this.day,
+      exercise: exercise ?? this.exercise,
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'day': DateTimeFormate.dateFormat.format(day),
@@ -32,7 +42,7 @@ class WorkoutModel {
   static Future<List<WorkoutModel>> createOrUpdateWorkout(
       WorkoutModel workoutModel) async {
     final List<WorkoutModel> data = readData();
-    final newData = findAndReplaceOrAdd(data, workoutModel);
+    final newData = _findAndReplaceOrAdd(data, workoutModel);
     await Storage.instance
         .write(StorageKey.workouts, newData.map((e) => e.toMap()).toList());
     final savedData = readData();
@@ -47,9 +57,8 @@ class WorkoutModel {
     return workouts;
   }
 
-  static findAndReplaceOrAdd(List<WorkoutModel> data, WorkoutModel model) {
+  static _findAndReplaceOrAdd(List<WorkoutModel> data, WorkoutModel model) {
     bool found = false;
-
     // Iterate through the list to find a matching workout by day
     for (int i = 0; i < data.length; i++) {
       if (data[i].day == model.day) {
@@ -76,5 +85,31 @@ class WorkoutModel {
       data.add(model);
     }
     return data;
+  }
+
+  static deleteWorkout(WorkoutModel model) async {
+    final List<WorkoutModel> data = readData();
+
+    data.removeWhere((workout) => workout.day.isAtSameMomentAs(model.day));
+
+    await Storage.instance
+        .write(StorageKey.workouts, data.map((e) => e.toMap()).toList());
+  }
+
+  static deleteExercise(WorkoutModel model) async {
+    final List<WorkoutModel> data = readData();
+
+    for (int i = 0; i < data.length; i++) {
+      if (data[i].day == model.day) {
+        data[i].exercise.removeWhere((exercise) => model
+            .exercise.first.createdAt
+            .isAtSameMomentAs(exercise.createdAt));
+
+        break;
+      }
+    }
+
+    await Storage.instance
+        .write(StorageKey.workouts, data.map((e) => e.toMap()).toList());
   }
 }

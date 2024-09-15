@@ -51,7 +51,7 @@ class _WorkOutListingScreenState extends State<WorkOutListingScreen> {
       appBar: AppBar(
         // backgroundColor: Colors.blue,
         title: const Text(
-          'Workout ',
+          'Workout',
           style: TextStyle(
               color: Colors.deepPurple,
               fontSize: 20,
@@ -80,7 +80,6 @@ class _WorkOutListingScreenState extends State<WorkOutListingScreen> {
                 physics: const BouncingScrollPhysics(),
                 itemBuilder: (context, index) {
                   final WorkoutModel workout = WorkoutModel.readData()[index];
-
                   return Column(
                     children: [
                       Text(DateTimeFormate.dateFormat.format(workout.day)),
@@ -95,8 +94,10 @@ class _WorkOutListingScreenState extends State<WorkOutListingScreen> {
                             final ExerciseModel exercise =
                                 workout.exercise[index];
                             return InkWell(
-                              onTap: () => _navigateToCreateWorkout(
-                                  DateTime.now(), null),
+                              onTap: () async {
+                                _navigateToCreateWorkout(workout.day, exercise);
+                                setState(() {});
+                              },
                               child: Container(
                                 decoration: BoxDecoration(
                                   color: Colors.blue.withOpacity(0.2),
@@ -116,9 +117,10 @@ class _WorkOutListingScreenState extends State<WorkOutListingScreen> {
                                       Icons.delete,
                                       color: Colors.black.withOpacity(0.8),
                                     ),
-                                    onPressed: () {
-                                      // _dbHelper.deleteWorkout(set.id);
-                                      // _loadWorkouts(); // Refresh list after deletion
+                                    onPressed: () async {
+                                      await WorkoutModel.deleteExercise(workout
+                                          .copyWith(exercise: [exercise]));
+                                      setState(() {});
                                     },
                                   ),
                                 ),
