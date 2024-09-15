@@ -11,7 +11,7 @@ class Storage {
     return _singleton;
   }
 
-  final GetStorage _storageBox = GetStorage("Work out");
+  final GetStorage _storageBox = GetStorage("work_out");
 
   dynamic read(String key) {
     return _storageBox.read(key);

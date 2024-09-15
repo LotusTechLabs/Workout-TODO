@@ -87,7 +87,7 @@ class WorkoutModel {
     return data;
   }
 
-  static deleteWorkout(WorkoutModel model) async {
+  static Future<void> deleteWorkout(WorkoutModel model) async {
     final List<WorkoutModel> data = readData();
 
     data.removeWhere((workout) => workout.day.isAtSameMomentAs(model.day));

@@ -190,7 +190,7 @@ class _CreateWorkOutScreenState extends State<CreateWorkOutScreen> {
             const SizedBox(height: 30),
             InkWell(
               borderRadius: BorderRadius.circular(16),
-              onTap: () {
+              onTap: () async {
                 // Validate inputs
                 if (_selectedExercise == null) {
                   _showError('Please select an exercise');
@@ -228,7 +228,9 @@ class _CreateWorkOutScreenState extends State<CreateWorkOutScreen> {
 
                 final newWorkOut =
                     WorkoutModel(exercise: [newSet], day: widget.workOutDay);
-                WorkoutModel.createOrUpdateWorkout(newWorkOut);
+                await WorkoutModel.createOrUpdateWorkout(newWorkOut);
+
+                Navigator.of(context).pop();
 
                 // final newSet = SetModel(
                 //   id: widget.existingSet?.id, // Keep the id if editing
